@@ -44,14 +44,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             headers.set("Authorization", authHeader);
             HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-            ResponseEntity<User> backendResponse = restTemplate.exchange(
+            ResponseEntity<LaravelUser> backendResponse = restTemplate.exchange(
                     laravelUrl + "/auth/validate",
                     HttpMethod.GET,
                     entity,
-                    User.class
+                    LaravelUser.class
             );
             if (backendResponse.getStatusCode().is2xxSuccessful() && backendResponse.getBody() != null) {
-                User user = backendResponse.getBody();
+                LaravelUser user = backendResponse.getBody();
 
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         user,
