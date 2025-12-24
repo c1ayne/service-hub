@@ -1,5 +1,9 @@
 package ru.falcons.service.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,11 +21,16 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/services")
 @RequiredArgsConstructor
+@Tag(name = "Services", description = "Methods for working with services")
 public class ServiceController {
 
     private final ServiceService serviceService;
 
     @PostMapping()
+    @Operation(
+            summary = "Create new service",
+            description = "Add service to DB. Token is required"
+    )
     public ResponseEntity<ServiceResponse> create(
             @Valid @RequestBody CreateServiceRequest request,
             @AuthenticationPrincipal LaravelUser currentUser
@@ -34,6 +43,11 @@ public class ServiceController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get service by id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Service found"),
+            @ApiResponse(responseCode = "404", description = "Service not found")
+    })
     public ResponseEntity<ServiceResponse> findById(@PathVariable Long id) {
 
         ServiceResponse response = serviceService.getById(id);
@@ -44,6 +58,7 @@ public class ServiceController {
     }
 
     @GetMapping
+    @Operation(summary = "Get all services")
     public ResponseEntity<List<ServiceResponse>> findAll() {
 
         List<ServiceResponse> response = serviceService.getAll();
@@ -54,6 +69,10 @@ public class ServiceController {
     }
 
     @PutMapping("/{id}")
+    @Operation(
+            summary = "Update service",
+            description = "Update service. Token is required"
+    )
     public ResponseEntity<ServiceResponse> update(
             @PathVariable Long id,
             @Valid @RequestBody UpdateServiceRequest request,
@@ -67,6 +86,14 @@ public class ServiceController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(
+            summary = "Delete service",
+            description = "Delete service. Token is required"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Service deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Service not found")
+    })
     public ResponseEntity<Void> delete(
             @PathVariable Long id,
             @AuthenticationPrincipal LaravelUser user
@@ -77,6 +104,10 @@ public class ServiceController {
     }
 
     @GetMapping("/my")
+    @Operation(
+            summary = "Get all your services",
+            description = "Get your services. Token is required"
+    )
     public ResponseEntity<List<ServiceResponse>> findMyServices(@AuthenticationPrincipal LaravelUser user) {
 
         List<ServiceResponse> response = serviceService.getMyServices(user.id());
