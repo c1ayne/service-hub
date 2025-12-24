@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:15.3
+    container_name: service-hub-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: service-hub
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  postgres_data:
