@@ -35,3 +35,8 @@ build/
 ### Configs with secrets ###
 src/main/resources/application.properties
 .env
+
+### Logs ###
+logs/
+*.log
+**/*.log

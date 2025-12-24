@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -21,6 +22,7 @@ import java.util.Collections;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final RestTemplate restTemplate;
@@ -33,7 +35,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String authHeader = request.getHeader("Authorization");
-
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             chain.doFilter(request, response);
             return;
@@ -44,14 +45,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             headers.set("Authorization", authHeader);
             HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-            ResponseEntity<User> backendResponse = restTemplate.exchange(
+            ResponseEntity<LaravelUser> backendResponse = restTemplate.exchange(
                     laravelUrl + "/auth/validate",
                     HttpMethod.GET,
                     entity,
-                    User.class
+                    LaravelUser.class
             );
             if (backendResponse.getStatusCode().is2xxSuccessful() && backendResponse.getBody() != null) {
-                User user = backendResponse.getBody();
+                LaravelUser user = backendResponse.getBody();
 
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         user,
@@ -59,10 +60,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         Collections.emptyList()
                 );
 
+                log.debug("User authorized: id={}, email={}", user.id(), user.email());
+
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else {
+                log.warn("Authorization failed for token. Status: {}", backendResponse.getStatusCode());
             }
         } catch (Exception e) {
-            // TODO logger
+            log.error("Auth service error: {}", e.getMessage());
         }
 
         chain.doFilter(request, response);
