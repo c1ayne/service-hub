@@ -45,6 +45,8 @@ jobs:
           SPRING_DATASOURCE_PASSWORD: admin
           SPRING_DOCKER_COMPOSE_ENABLED: "false"
           SPRING_FLYWAY_ENABLED: "true"
+
+          LARAVEL_API_URL: "http://localhost:8000"
         run: ./mvnw clean verify
 
       - name: Login to Docker Hub
