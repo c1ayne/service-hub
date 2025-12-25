@@ -39,11 +39,13 @@ jobs:
         run: chmod +x mvnw
 
       - name: Run Tests
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/service-hub
+          SPRING_DATASOURCE_USERNAME: admin
+          SPRING_DATASOURCE_PASSWORD: admin
+          SPRING_DOCKER_COMPOSE_ENABLED: "false"
+          SPRING_FLYWAY_ENABLED: "true"
         run: ./mvnw clean verify
-          -Dspring.datasource.url=jdbc:postgresql://localhost:5432/service-hub 
-          -Dspring.datasource.username=admin 
-          -Dspring.datasource.password=admin 
-          -Dspring.docker.compose.enabled=false
 
       - name: Login to Docker Hub
         if: github.event_name != 'pull_request'
