@@ -10,6 +10,21 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:15.3
+        env:
+          POSTGRES_DB: service-hub
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: admin
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v3
 
@@ -23,6 +38,10 @@ jobs:
 
       - name: Run Tests
         run: ./mvnw clean verify
+          -Dspring.datasource.url=jdbc:postgresql://localhost:5432/service-hub 
+          -Dspring.datasource.username=admin 
+          -Dspring.datasource.password=admin 
+          -Dspring.docker.compose.enabled=false
 
       - name: Login to Docker Hub
         if: github.event_name != 'pull_request'
